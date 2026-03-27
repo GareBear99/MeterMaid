@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MeterMaid UI Demo</title>
+<style>
+body{margin:0;background:#080b11;color:#eef4ff;font-family:Inter,Arial,sans-serif}
+.wrap{width:min(1280px,calc(100vw - 24px));margin:12px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+.panel{background:#141a24ee;border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:16px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.hd{color:#ffe8aa;font-weight:800;font-size:28px}.sub{color:#b7c4d8;margin-top:6px}.pill{margin-top:14px;padding:14px;border-radius:16px;border:1px solid rgba(120,232,140,.4);background:rgba(120,232,140,.12);color:#78e88c;font-weight:800;font-size:24px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.card{background:rgba(255,255,255,.03);border-radius:18px;padding:12px}
+.num{font-size:28px;color:#d6b56a;font-weight:900}.lbl{font-size:13px;color:#b7c4d8}.graph{height:260px;border-radius:18px;background:linear-gradient(180deg,#101722,#0b1017);position:relative;overflow:hidden}.line{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,.06)}
+svg{width:100%;height:100%}
+</style></head><body>
+<div class="wrap">
+<div class="panel"><div class="hd">MeterMaid</div><div class="sub">Single-plugin mastering and metering suite</div><div class="pill">Streaming ready</div>
+<div class="grid"><div class="card"><div class="lbl">Momentary</div><div class="num">-14.2 LUFS</div></div><div class="card"><div class="lbl">Short-Term</div><div class="num">-14.6 LUFS</div></div><div class="card"><div class="lbl">Integrated</div><div class="num">-14.1 LUFS</div></div></div>
+<div style="margin-top:12px" class="graph"><div class="line" style="top:20%"></div><div class="line" style="top:40%"></div><div class="line" style="top:60%"></div><div class="line" style="top:80%"></div>
+<svg viewBox="0 0 800 260" preserveAspectRatio="none"><polyline fill="none" stroke="#ffe8aa" stroke-width="3" points="0,140 80,130 160,135 240,128 320,120 400,126 480,118 560,124 640,122 720,130 800,126"/><polyline fill="none" stroke="#70d4ff" stroke-width="2" points="0,190 80,182 160,186 240,176 320,171 400,168 480,170 560,165 640,169 720,166 800,164"/></svg></div></div>
+<div style="display:grid;gap:12px"><div class="panel"><div class="hd" style="font-size:22px">Decision Layer</div><div class="sub">Too loud / too quiet / peak risk / stereo risk / dynamics pressure</div><div style="margin-top:14px;color:#ffe8aa;font-weight:800">Too loud → reduce loudness by ~1 dB</div></div>
+<div class="panel"><div class="hd" style="font-size:22px">Vectorscope + Aux</div><div class="sub">True peak, RMS, correlation, dynamics</div><div class="grid" style="grid-template-columns:1fr 1fr"><div class="card"><div class="lbl">True Peak</div><div class="num">-1.2 dBTP</div></div><div class="card"><div class="lbl">Correlation</div><div class="num">0.52</div></div></div></div></div>
+</div></body></html>

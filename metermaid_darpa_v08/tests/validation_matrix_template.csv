@@ -1,0 +1,6 @@
+test_id,source_material,reference_meter,momentary_delta_lu,short_term_delta_lu,integrated_delta_lu,true_peak_delta_dbtp,notes
+T001,speech_mono_30s,REFERENCE, , , , ,
+T002,pop_mix_dense_60s,REFERENCE, , , , ,
+T003,acoustic_dynamic_60s,REFERENCE, , , , ,
+T004,clipped_sine_hot,REFERENCE, , , , ,
+T005,high_freq_isp_stress,REFERENCE, , , , ,

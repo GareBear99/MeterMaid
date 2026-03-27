@@ -1,0 +1,18 @@
+{
+  "title": "MeterMaid",
+  "panels": [
+    "Primary Loudness",
+    "Decision Layer",
+    "Vectorscope",
+    "Spectrum",
+    "LUFS Timeline",
+    "Auxiliary Metrics"
+  ],
+  "theme": {
+    "background": "#080b11",
+    "panel": "#141a24",
+    "gold": "#d6b56a",
+    "gold2": "#ffe8aa",
+    "cyan": "#70d4ff"
+  }
+}
