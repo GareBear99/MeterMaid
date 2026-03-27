@@ -1,4 +1,4 @@
-# MeterMaid — DARPA v0.7
+# MeterMaid — v0.7
 
 MeterMaid is a **single JUCE plugin mastering and metering suite** built around three pillars:
 
