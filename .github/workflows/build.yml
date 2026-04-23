@@ -1,0 +1,72 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.7.0-beta.1)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone JUCE 8.0.0
+        run: git clone --depth 1 --branch 8.0.0 https://github.com/juce-framework/JUCE.git JUCE
+
+      - name: Install CMake
+        run: brew install cmake
+
+      - name: Configure
+        run: |
+          cmake -S metermaid_darpa_v08 -B build \
+            -DJUCE_PATH=$PWD/JUCE \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -Wno-dev
+
+      - name: Build VST3 + AU + Standalone
+        run: |
+          cmake --build build --config Release --target MeterMaid_VST3 -j
+          cmake --build build --config Release --target MeterMaid_AU -j
+          cmake --build build --config Release --target MeterMaid_Standalone -j
+
+      - name: Verify universal binaries
+        run: |
+          echo "=== VST3 ==="
+          file build/MeterMaid_artefacts/Release/VST3/MeterMaid.vst3/Contents/MacOS/MeterMaid
+          lipo -info build/MeterMaid_artefacts/Release/VST3/MeterMaid.vst3/Contents/MacOS/MeterMaid
+          echo "=== AU ==="
+          file build/MeterMaid_artefacts/Release/AU/MeterMaid.component/Contents/MacOS/MeterMaid
+          lipo -info build/MeterMaid_artefacts/Release/AU/MeterMaid.component/Contents/MacOS/MeterMaid
+
+      - name: Package zips
+        run: |
+          mkdir -p dist
+          (cd build/MeterMaid_artefacts/Release/VST3 && zip -r ../../../../dist/MeterMaid-VST3-macOS-universal.zip MeterMaid.vst3)
+          (cd build/MeterMaid_artefacts/Release/AU && zip -r ../../../../dist/MeterMaid-AU-macOS-universal.zip MeterMaid.component)
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MeterMaid-macos-universal
+          path: dist/*.zip
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.zip
+          prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-alpha') || contains(github.ref, '-rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
