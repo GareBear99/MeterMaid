@@ -54,3 +54,31 @@ target_link_libraries(MeterMaid PRIVATE
 juce_generate_juce_header(MeterMaid)
 
 target_compile_definitions(MeterMaid PRIVATE JUCE_VST3_CAN_REPLACE_VST2=0)
+
+# ---------------------------------------------------------------------
+# Optional reference-tone calibration test (Gate 1 — numerical trust).
+# Build with -DMETERMAID_BUILD_TESTS=ON. The resulting executable
+# MeterMaid_ReferenceTest feeds synthesised known-energy signals
+# through the live MeterEngine and exits non-zero if any reading is
+# outside its specification tolerance.
+# ---------------------------------------------------------------------
+option(METERMAID_BUILD_TESTS "Build MeterMaid reference-tone calibration test" OFF)
+
+if(METERMAID_BUILD_TESTS)
+    # juce_add_console_app gives us a target that's hooked into the same
+    # JuceHeader.h generation machinery as juce_add_plugin, so the
+    # engine's #include <JuceHeader.h> resolves cleanly.
+    juce_add_console_app(MeterMaid_ReferenceTest
+        PRODUCT_NAME "MeterMaid_ReferenceTest")
+    target_sources(MeterMaid_ReferenceTest PRIVATE
+        tests/ReferenceToneTest.cpp)
+    juce_generate_juce_header(MeterMaid_ReferenceTest)
+    target_compile_definitions(MeterMaid_ReferenceTest PRIVATE
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_STANDALONE_APPLICATION=1)
+    target_link_libraries(MeterMaid_ReferenceTest PRIVATE
+        juce::juce_audio_utils
+        juce::juce_dsp
+        juce::juce_audio_formats)
+endif()

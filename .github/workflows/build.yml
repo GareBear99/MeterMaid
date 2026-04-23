@@ -7,14 +7,53 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag (e.g. v0.7.0-beta.1)'
+        description: 'Release tag (e.g. v0.7.0-beta.3)'
         required: true
 
 permissions:
   contents: write
 
 jobs:
+  reference-test:
+    # Gate 1 of the release process: the calibration test must pass on
+    # every tagged build. Runs on ubuntu for cost; the engine is
+    # architecture-independent.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux audio deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake pkg-config \
+            libasound2-dev libjack-jackd2-dev \
+            libfreetype6-dev libx11-dev libxcomposite-dev \
+            libxcursor-dev libxext-dev libxfixes-dev \
+            libxinerama-dev libxrandr-dev libxrender-dev \
+            libwebkit2gtk-4.1-dev libcurl4-openssl-dev \
+            libglu1-mesa-dev ladspa-sdk
+
+      - name: Clone JUCE 8.0.0
+        run: git clone --depth 1 --branch 8.0.0 https://github.com/juce-framework/JUCE.git JUCE
+
+      - name: Configure (tests on)
+        run: |
+          cmake -S MeterMaid -B build \
+            -DJUCE_PATH=$PWD/JUCE \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DMETERMAID_BUILD_TESTS=ON \
+            -Wno-dev
+
+      - name: Build reference-tone calibration test
+        run: cmake --build build --target MeterMaid_ReferenceTest -j
+
+      - name: Run reference-tone calibration test
+        run: ./build/MeterMaid_ReferenceTest
+
   build-macos:
+    needs: reference-test
     runs-on: macos-14
     steps:
       - name: Checkout
@@ -28,7 +67,7 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -S metermaid_darpa_v08 -B build \
+          cmake -S MeterMaid -B build \
             -DJUCE_PATH=$PWD/JUCE \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
@@ -53,8 +92,9 @@ jobs:
       - name: Package zips
         run: |
           mkdir -p dist
-          (cd build/MeterMaid_artefacts/Release/VST3 && zip -r ../../../../dist/MeterMaid-VST3-macOS-universal.zip MeterMaid.vst3)
-          (cd build/MeterMaid_artefacts/Release/AU && zip -r ../../../../dist/MeterMaid-AU-macOS-universal.zip MeterMaid.component)
+          (cd build/MeterMaid_artefacts/Release/VST3       && zip -r ../../../../dist/MeterMaid-VST3-macOS-universal.zip MeterMaid.vst3)
+          (cd build/MeterMaid_artefacts/Release/AU         && zip -r ../../../../dist/MeterMaid-AU-macOS-universal.zip MeterMaid.component)
+          (cd build/MeterMaid_artefacts/Release/Standalone && zip -r ../../../../dist/MeterMaid-Standalone-macOS-universal.zip MeterMaid.app)
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
